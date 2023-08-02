@@ -52,7 +52,7 @@ We want to shed some light on our choice of PostgreSQL as the underlying databas
 
 But that's not all! PostgreSQL's prowess truly shines when it comes to performant time-series queries, making it an excellent choice for clients seeking efficient handling of such queries.
 
-For reading more about how PostgreSQL Json queries work [PostgreSQL Json Functions](https://www.postgresql.org/docs/current/functions-json.html).
+For reading more about how PostgreSQL Json queries work read on [PostgreSQL Json Functions](https://www.postgresql.org/docs/current/functions-json.html).
 
 To understand better, let's have a look on simple query, how you can get all deposited `A.1e3c78c6d580273b.LNVCT.Deposit` on address `0x12a6f076d0752584`.
 
