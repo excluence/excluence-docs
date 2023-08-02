@@ -8,11 +8,11 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
     title: 'Excluence Documentation',
-    tagline: 'Dinosaurs are cool',
+    tagline: 'Query flow blockchain data using SQL',
     favicon: 'img/favicon.ico',
 
     // Set the production url of your site here
-    url: 'https://your-docusaurus-test-site.com',
+    url: 'https://www.excluence.com',
     // Set the /<baseUrl>/ pathname under which your site is served
     // For GitHub pages deployment, it is often '/<projectName>/'
     baseUrl: '/',
@@ -42,8 +42,8 @@ const config = {
                     sidebarPath: require.resolve('./sidebars.js'),
                     // Please change this to your repo.
                     // Remove this to remove the "edit this page" links.
-                    editUrl:
-                        'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/'
+                    // editUrl:
+                        // 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/'
                 },
                 blog: {
                     showReadingTime: true,
@@ -65,9 +65,9 @@ const config = {
             // Replace with your project's social card
             image: 'img/docusaurus-social-card.jpg',
             navbar: {
-                title: 'My Site',
+                title: 'Excluence',
                 logo: {
-                    alt: 'My Site Logo',
+                    alt: 'Excluence Logo',
                     src: 'img/logo.svg'
                 },
                 items: [
@@ -75,12 +75,17 @@ const config = {
                         type: 'docSidebar',
                         sidebarId: 'tutorialSidebar',
                         position: 'left',
-                        label: 'Tutorial'
+                        label: 'Docs'
                     },
-                    { to: '/blog', label: 'Blog', position: 'left' },
+                    // { to: '/blog', label: 'Blog', position: 'left' },
                     {
-                        href: 'https://github.com/facebook/docusaurus',
-                        label: 'GitHub',
+                        href: 'https://github.com/excluence/excluence-docs',
+                        label: 'Docs',
+                        position: 'right'
+                    },
+                    {
+                        href: 'https://github.com/excluence/parcelQL',
+                        label: 'ParcelQL',
                         position: 'right'
                     }
                 ]
