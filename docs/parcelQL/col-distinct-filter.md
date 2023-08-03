@@ -100,7 +100,7 @@ Examples from the `flow_events` [table](http://localhost:3000/docs/intro#event-t
 }
 ```
 
-### 3. Selecting all columns using `*`
+### 3. Selecting all columns using *
 
 **Request Query**
 ```json
@@ -166,6 +166,8 @@ Examples from the `flow_events` [table](http://localhost:3000/docs/intro#event-t
   ]
 }
 ```
+
+You can generate the same query by providing `columns` as `undefined`.
 
 ### 4. JSON data type selection
 
@@ -340,7 +342,7 @@ Performing typecasting is a vital functionality that proves useful in the Exclue
 
 ```
 
-To understand typecasting in ParcelQL, let's take the [A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted](http://localhost:3000/docs/parcelQL/col-distinct-filter#4-json-data-type-selection), in the payload `storefrontResourceID` is an `UInt64` value and stored as string in the database. Now, let's explore how you can efficiently convert this string value into an integer.
+To understand typecasting in ParcelQL, let's take the [A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted](http://localhost:3000/docs/parcelQL/col-distinct-filter#4-json-data-type-selection) event, in the payload `storefrontResourceID` is an `UInt64` value and stored as string in the database. Now, let's explore how you can efficiently convert this string value into an integer.
 
 **Request Query**
 ```json
@@ -403,3 +405,298 @@ To understand typecasting in ParcelQL, let's take the [A.4eb8a10cb9f87357.NFTSto
 Upon examination, it becomes evident that the `storefrontResourceID` for the aforementioned event, with a corresponding `listingResourceID` of **"1192177821"** has been successfully transformed from a string into an integer data type.
 
 `type` attribute in [ParcelQLSimpleColumn](http://localhost:3000/docs/parcelQL/col-distinct-filter#simple-column-selection) is a string array. The developers can chain the typecasting for example for converting any value to `{any value type} -> text -> decimal` the `type: ['text', 'decimal]` and it will generate typecasting SQL `::text::decimal`.
+
+## Complex column selection and manipulation
+
+```ts
+export type ParcelQLColumn = Partial<ParcelQLSimpleColumnWithCase> & {
+    alias?: string;
+} & (
+        | {
+              function: ParcelQLAggregationFunction | ParcelQLColumnFunction;
+              parameters?: (unknown | ParcelQLSimpleColumnWithCase)[];
+          }
+        | {
+              window: ParcelQLWindow;
+              function: ParcelQLWindowFunction;
+              parameters?: (unknown | ParcelQLSimpleColumnWithCase)[];
+          }
+        | {}
+    );
+```
+
+### 1. Aliasing the column
+
+Taking the above [example](http://localhost:3000/docs/parcelQL/col-distinct-filter#4-json-data-type-selection). The previous example returned `?column?` due un-determinable column name, Let's have a look how we can alias any column.
+
+For aliasing `ParcelQLColumn` has `alias` property. It generates an `as` SQL statement.
+
+```json
+{
+    "action": "query",
+    "table": "flow_events",
+    "columns": [
+        {
+            "column": ["payload", "nftType", "typeID"],
+            "alias": "nftTypeID"
+        }
+    ],
+    "filter": {
+        "column": "event",
+        "operator": "=",
+        "value": "A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted"
+    }
+}
+```
+
+**Generated SQL**
+```json
+{
+  "data": "select (`payload`->'nftType'->>'typeID') as `nftTypeID` from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted')"
+}
+```
+
+**Response**
+```json
+{
+  "data": [
+    {
+      "nftTypeID": "A.eee6bdee2b2bdfc8.Basketballs.NFT"
+    },
+    {
+      "nftTypeID": "A.d0bcefdf1e67ea85.HWGarageCardV2.NFT"
+    },
+    {
+      "nftTypeID": "A.d0bcefdf1e67ea85.HWGarageCardV2.NFT"
+    },
+    {
+      "nftTypeID": "A.eee6bdee2b2bdfc8.Basketballs.NFT"
+    },
+    ...
+  ]
+}
+```
+### 2. Case clause
+
+```ts
+export interface ComparisonFilterColumn
+    extends Partial<ParcelQLSimpleColumnWithCase> {
+    function?: ParcelQLAggregationFunction | ParcelQLColumnFunction;
+    parameters?: (unknown | ParcelQLSimpleColumnWithCase)[];
+}
+
+interface _CompFilter {
+    column: string | string[] | ComparisonFilterColumn;
+    operator: ComparisonOps;
+    type?: string | string[];
+}
+
+export type CompFilter = _CompFilter &
+    ({ value: unknown } | { rightColumn: ComparisonFilterColumn });
+export interface ParcelQLCase {
+    when: { and: CompFilter[] } | { or: CompFilter[] } | CompFilter;
+    then: unknown | ParcelQLSimpleColumn;
+}
+
+export interface ParcelQLCaseWhen {
+    cases: ParcelQLCase[];
+    else: unknown | ParcelQLSimpleColumn;
+}
+
+export interface ParcelQLSimpleColumnWithCase {
+    column: string | string[] | ParcelQLCaseWhen;
+    type?: string | string[];
+}
+```
+
+The CASE expression goes through conditions and returns a value when the first condition is met (like an if-then-else statement). So, once a condition is true, it will stop reading and return the result. If no conditions are true, it returns the value in the `ELSE` clause.
+
+
+Let's illustrate its usage through an example. Consider a scenario where we aim to construct a query that returns three columns labeled high, medium, and low based on the salePrice of any `A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted` event. The column values will be categorized as follows:
+
+* **high**: if the salePrice is greater than or equal to 8.
+* **medium**: if the salePrice is lesser than 8 but greater than or equal to 4.
+* **low**: if the salePrice is lesser than 4.
+
+This way, the query will effectively group the salePrice values into these three categories for further analysis.
+
+
+**Request Query**
+```json
+{
+    "action": "query",
+    "table": "flow_events",
+    "columns": [
+        {
+            "column": ["payload", "listingResourceID"],
+            "alias": "listingResourceID"
+        },
+        {
+            "column": ["payload", "salePrice"],
+            "alias": "salePrice"
+        },
+        {
+            "column": {
+                "cases": [
+                    {
+                        "when": {
+                            "column": ["payload", "salePrice"],
+                            "type": "decimal",
+                            "operator": ">=",
+                            "value": 8
+                        },
+                        "then": "high"
+                    },
+                    {
+                        "when": {
+                            "and": [
+                                {
+                                    "column": ["payload", "salePrice"],
+                                    "type": "decimal",
+                                    "operator": "<",
+                                    "value": 8
+                                },
+                                {
+                                    "column": ["payload", "salePrice"],
+                                    "type": "decimal",
+                                    "operator": ">=",
+                                    "value": 4
+                                }
+                            ]
+                        },
+                        "then": "medium"
+                    }
+                ],
+                "else": "low"
+            },
+            "alias": "sentiment"
+        }
+    ],
+    "filter": {
+        "column": "event",
+        "operator": "=",
+        "value": "A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted"
+    }
+}
+```
+
+**Generated SQL**
+```json
+{
+  "data": "select (`payload`->>'listingResourceID') as `listingResourceID`, (`payload`->>'salePrice') as `salePrice`, CASE WHEN (`payload`->>'salePrice')::decimal >= 8 THEN 'high' WHEN (`payload`->>'salePrice')::decimal < 8 AND (`payload`->>'salePrice')::decimal >= 4 THEN 'medium' ELSE 'low' END as `sentiment` from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted')"
+}
+```
+
+**Response**
+```json
+{
+  "data": [
+    {
+      "listingResourceID": "1192177821",
+      "salePrice": "10.00000000",
+      "sentiment": "high"
+    },
+    {
+      "listingResourceID": "1144944279",
+      "salePrice": "2.99000000",
+      "sentiment": "low"
+    },
+    {
+      "listingResourceID": "1144944945",
+      "salePrice": "4.99000000",
+      "sentiment": "medium"
+    },
+    {
+      "listingResourceID": "1192178848",
+      "salePrice": "10.00000000",
+      "sentiment": "high"
+    },
+    ...
+  ]
+}
+```
+
+In the upcoming Filter tutorial, we will delve into a comprehensive understanding of `CompFilter`.
+
+## Distinct
+
+```ts
+export interface ParcelQLColumnWithoutWindow
+    extends Partial<ParcelQLSimpleColumnWithCase> {
+    alias?: string;
+    function?: ParcelQLAggregationFunction | ParcelQLColumnFunction;
+    parameters?: (unknown | ParcelQLSimpleColumnWithCase)[];
+}
+
+export interface ParcelQLDistinct {
+    on?: ParcelQLSimpleColumn;
+    columns: ParcelQLColumnWithoutWindow[];
+}
+```
+
+Let's use the above [example](http://localhost:3000/docs/parcelQL/col-distinct-filter#4-json-data-type-selection) to understand how we can use `distinct` clause to fetch unique `nftType`, eliminating any duplicate entries. 
+
+**Request Query**
+```json
+{
+    "action": "query",
+    "table": "flow_events",
+    "columns": [],
+    "distinct": {
+      "columns": [
+        {
+            "column": ["payload", "nftType", "typeID"]
+        }
+    ]
+    },
+    "filter": {
+        "column": "event",
+        "operator": "=",
+        "value": "A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted"
+    }
+}
+```
+
+**Generate SQL**
+```json
+{
+  "data": "select DISTINCT (`payload`->'nftType'->>'typeID') from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted')"
+}
+```
+
+**Response**
+```json
+{
+  "data": [
+    {
+      "?column?": "A.0b2a3299cc857e29.TopShot.NFT"
+    },
+    {
+      "?column?": "A.321d8fcde05f6e8c.Seussibles.NFT"
+    },
+    {
+      "?column?": "A.329feb3ab062d289.UFC_NFT.NFT"
+    },
+    {
+      "?column?": "A.807c3d470888cc48.Flunks.NFT"
+    },
+    {
+      "?column?": "A.87ca73a41bb50ad5.Golazos.NFT"
+    },
+    {
+      "?column?": "A.c6945445cdbefec9.TuneGONFT.NFT"
+    },
+    {
+      "?column?": "A.d0bcefdf1e67ea85.HWGarageCardV2.NFT"
+    },
+    {
+      "?column?": "A.e4cf4bdc1751c65d.PackNFT.NFT"
+    },
+    {
+      "?column?": "A.eee6bdee2b2bdfc8.Basketballs.NFT"
+    }
+  ]
+}
+```
+
+**NOTE**: Currently, ParcelQL does not provide direct support for in-column distinct values, such as `COUNT(DISTINCT ...)` statements.
