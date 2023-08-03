@@ -616,7 +616,7 @@ This way, the query will effectively group the salePrice values into these three
 }
 ```
 
-In the upcoming Filter tutorial, we will delve into a comprehensive understanding of `CompFilter`.
+In the upcoming Filter tutorial, we will delve into a comprehensive understanding of [CompFilter](http://localhost:3000/docs/parcelQL/filter#1-simple-comparison-filter).
 
 ## Distinct
 
