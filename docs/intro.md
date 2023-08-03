@@ -130,4 +130,4 @@ select * from `flow_events` where ((`event` = 'A.1e3c78c6d580273b.LNVCT.Deposit'
 }
 ```
 
-This was just a simple query without much manipulation, but in complex queries like latest deposits or total deposit amount calculation can also be performed. To learn how to write complex SQL queries using **ParcelQL** move to next part.
+This was just a simple query without much manipulation, but in complex queries like latest deposits or total deposit amount calculation can also be performed. To learn how to write complex SQL queries using **ParcelQL** move to this [page](/docs/parcelQL/intro).
