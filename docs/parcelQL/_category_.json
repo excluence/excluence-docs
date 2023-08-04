@@ -1,0 +1,8 @@
+{
+  "label": "ParcelQL",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn concepts of ParcelQL used for generating powerful SQL queries."
+  }
+}
