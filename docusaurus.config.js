@@ -12,7 +12,7 @@ const config = {
     favicon: 'img/favicon.ico',
 
     // Set the production url of your site here
-    url: 'https://www.excluence.com',
+    url: 'https://docs.excluence.com',
     // Set the /<baseUrl>/ pathname under which your site is served
     // For GitHub pages deployment, it is often '/<projectName>/'
     baseUrl: '/',
@@ -24,6 +24,7 @@ const config = {
 
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
+    trailingSlash: false,
 
     // Even if you don't use internalization, you can use this field to set useful
     // metadata like html lang. For example, if your site is Chinese, you may want
@@ -97,8 +98,12 @@ const config = {
                         title: 'Docs',
                         items: [
                             {
-                                label: 'Tutorial',
+                                label: 'Introduction',
                                 to: '/docs/intro'
+                            },
+                            {
+                                label: 'ParcelQL',
+                                to: '/docs/parcelQL/intro'
                             }
                         ]
                     },
@@ -123,17 +128,17 @@ const config = {
                         title: 'More',
                         items: [
                             {
-                                label: 'Blog',
-                                to: '/blog'
+                                label: 'Docs GitHub',
+                                href: 'https://github.com/excluence/excluence-docs'
                             },
                             {
-                                label: 'GitHub',
-                                href: 'https://github.com/facebook/docusaurus'
+                                label: 'ParcelQL GitHub',
+                                href: 'https://github.com/excluence/parcelQL'
                             }
                         ]
                     }
                 ],
-                copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`
+                copyright: `Copyright © ${new Date().getFullYear()} Excluence, Built with Docusaurus.`
             },
             prism: {
                 theme: lightCodeTheme,
