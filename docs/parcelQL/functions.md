@@ -11,7 +11,7 @@ Non-window functions accepts `function` and optional `parameters` properties, wh
 ## Time function
 Currently, ParcelQL only supports these time functions:
 ```ts
-type ParcelQLDateTimeFunction = ['DATE_TRUNC', 'DATE_PART'];
+type ParcelQLDateTimeFunction = 'DATE_TRUNC'| 'DATE_PART';
 ```
 Let's create a query to fetch the day of `MomentMinted` event.
 
@@ -61,7 +61,7 @@ select DATE_TRUNC('day',`timestamp`) from `flow_events` where (`eventName` = 'Mo
 
 ## Aggregation Function
 ```ts
-type ParcelQLAggregationFunction = ['AVG','COUNT','SUM','MAX','MIN']
+type ParcelQLAggregationFunction = 'AVG'|'COUNT'|'SUM'|'MAX'|'MIN'
 ```
 
 ### A.c1e4f4f4c4257510.TopShotMarketV3.MomentListed
@@ -175,7 +175,7 @@ select AVG((`payload`->>'price')::decimal) as `avg_price`, MAX((`payload`->>'pri
 ## Window Function
 
 ```ts
-type ParcelQLWindowFunction = ['ROW_NUMBER','RANK','DENSE_RANK','LAG','LEAD'] | ParcelQLAggregationFunction;
+type ParcelQLWindowFunction = 'ROW_NUMBER'|'RANK'|'DENSE_RANK'|'LAG'|'LEAD' | ParcelQLAggregationFunction;
 ```
 
 ```ts
