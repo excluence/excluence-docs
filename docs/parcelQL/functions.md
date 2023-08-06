@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Time, Aggregation and Window functions
 
-These functions can be used normally within the [ParcelQLColumn](http://localhost:3000/docs/parcelQL/col-distinct-filter#complex-column-selection-and-manipulation).
+These functions can be used normally within the [ParcelQLColumn](/docs/parcelQL/col-distinct-filter#complex-column-selection-and-manipulation).
 
 Non-window functions accepts `function` and optional `parameters` properties, while window functions will requires extra `window` attribute. `parameters` is an array of values and column. You can use `alias` with functions.
 
@@ -40,10 +40,8 @@ Let's create a query to fetch the day of `MomentMinted` event.
 ```
 
 **Generated SQL**
-```json
-{
-  "data": "select DATE_TRUNC('day',`timestamp`) from `flow_events` where (`eventName` = 'MomentMinted')"
-}
+```sql
+select DATE_TRUNC('day',`timestamp`) from `flow_events` where (`eventName` = 'MomentMinted');
 ```
 
 **Response**
@@ -156,10 +154,8 @@ Let's calculate average listing price, total listings, max and min listing price
 }
 ```
 **Generated SQL**
-```json
-{
-  "data": "select AVG((`payload`->>'price')::decimal) as `avg_price`, MAX((`payload`->>'price')::decimal) as `max_price`, MIN((`payload`->>'price')::decimal) as `min_price`, COUNT(*) as `total_listings` from `flow_events` where ((`eventName` = 'MomentListed') AND (DATE_TRUNC('day',`timestamp`) = '2023-07-23'))"
-}
+```sql
+select AVG((`payload`->>'price')::decimal) as `avg_price`, MAX((`payload`->>'price')::decimal) as `max_price`, MIN((`payload`->>'price')::decimal) as `min_price`, COUNT(*) as `total_listings` from `flow_events` where ((`eventName` = 'MomentListed') AND (DATE_TRUNC('day',`timestamp`) = '2023-07-23'));
 ```
 
 **Response**
@@ -177,3 +173,24 @@ Let's calculate average listing price, total listings, max and min listing price
 ```
 
 ## Window Function
+
+```ts
+type ParcelQLWindowFunction = ['ROW_NUMBER','RANK','DENSE_RANK','LAG','LEAD'] | ParcelQLAggregationFunction;
+```
+
+```ts
+export type ParcelQLWindow =
+    | {
+          order_by: ParcelQLOrderBy;
+          partition_by: ParcelQLColumn[];
+      }
+    | {
+          order_by: ParcelQLOrderBy;
+      }
+    | { partition_by: ParcelQLColumn[] };
+
+```
+
+You can read about [ParcelQLOrderBy](/docs/parcelQL/query#group-by) and [ParcelQLColumn](/docs/parcelQL/col-distinct-filter#complex-column-selection-and-manipulation) in the previous sections. Right now the `OVER` clause requires either `partition_by` or `order_by` or both.
+
+Example will be added soon
