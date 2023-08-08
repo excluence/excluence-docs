@@ -17,3 +17,5 @@ export type ParcelQLJoin = {
     | { table: ParcelQLQuery<'temporary_table'>; alias: string }
 );
 ```
+
+Tutorial will be added soon.
