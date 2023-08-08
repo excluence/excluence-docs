@@ -15,7 +15,7 @@ export type ParcelQLFilter =
 
 Currently, ParcelQL supports following comparison operators
 ```ts
-type ComparisonOps = ['=', '>', '<', '>=','<=','<>','IN','NOT IN','LIKE','ILIKE']
+type ComparisonOps = '='| '>'| '<'| '>='|'<='|'<>'|'IN'|'NOT IN'|'LIKE'|'ILIKE'
 ```
 
 ```ts

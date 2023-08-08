@@ -13,7 +13,7 @@ export type ParcelQLSimpleColumn = {
     type?: string | string[];
 };
 ```
-Examples from the `flow_events` [table](http://localhost:3000/docs/intro#event-table).
+Examples from the `flow_events` [table](/docs/intro#event-table).
 
 ### 1. Selecting single column
 
@@ -30,10 +30,8 @@ Examples from the `flow_events` [table](http://localhost:3000/docs/intro#event-t
 }
 ```
 **Generated SQL**
-```json
-{
-  "data": "select `address` from `flow_events`"
-}
+```sql
+select `address` from `flow_events`;
 ```
 
 
@@ -69,10 +67,8 @@ Examples from the `flow_events` [table](http://localhost:3000/docs/intro#event-t
 }
 ```
 **Generated SQL**
-```json
-{
-  "data": "select `address`, `contract` from `flow_events`"
-}
+```sql
+select `address`, `contract` from `flow_events`;
 ```
 
 **Response**
@@ -116,10 +112,8 @@ Examples from the `flow_events` [table](http://localhost:3000/docs/intro#event-t
 ```
 
 **Generate SQL**
-```json
-{
-  "data": "select * from `flow_events`"
-}
+```sql
+select * from `flow_events`
 ```
 
 **Response**
@@ -275,10 +269,8 @@ Let's create a query to select all `A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCo
 ```
 
 **Generated SQL**
-```json
-{
-  "data": "select (`payload`->'nftType'->>'typeID') from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted')"
-}
+```sql
+select (`payload`->'nftType'->>'typeID') from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted');
 ```
 
 **Response**
@@ -342,7 +334,7 @@ Performing typecasting is a vital functionality that proves useful in the Exclue
 
 ```
 
-To understand typecasting in ParcelQL, let's take the [A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted](http://localhost:3000/docs/parcelQL/col-distinct-filter#4-json-data-type-selection) event, in the payload `storefrontResourceID` is an `UInt64` value and stored as string in the database. Now, let's explore how you can efficiently convert this string value into an integer.
+To understand typecasting in ParcelQL, let's take the [A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted](/docs/parcelQL/col-distinct-filter#4-json-data-type-selection) event, in the payload `storefrontResourceID` is an `UInt64` value and stored as string in the database. Now, let's explore how you can efficiently convert this string value into an integer.
 
 **Request Query**
 ```json
@@ -368,10 +360,8 @@ To understand typecasting in ParcelQL, let's take the [A.4eb8a10cb9f87357.NFTSto
 ```
 
 **Generated SQL**
-```json
-{
-  "data": "select (`payload`->>'listingResourceID') as `listingResourceID`, (`payload`->>'storefrontResourceID')::integer from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted')"
-}
+```sql
+select (`payload`->>'listingResourceID') as `listingResourceID`, (`payload`->>'storefrontResourceID')::integer from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted');
 ```
 
 **Response**
@@ -404,7 +394,7 @@ To understand typecasting in ParcelQL, let's take the [A.4eb8a10cb9f87357.NFTSto
 ```
 Upon examination, it becomes evident that the `storefrontResourceID` for the aforementioned event, with a corresponding `listingResourceID` of **"1192177821"** has been successfully transformed from a string into an integer data type.
 
-`type` attribute in [ParcelQLSimpleColumn](http://localhost:3000/docs/parcelQL/col-distinct-filter#simple-column-selection) is a string array. The developers can chain the typecasting for example for converting any value to `{any value type} -> text -> decimal` the `type: ['text', 'decimal]` and it will generate typecasting SQL `::text::decimal`.
+`type` attribute in [ParcelQLSimpleColumn](/docs/parcelQL/col-distinct-filter#simple-column-selection) is a string array. The developers can chain the typecasting for example for converting any value to `{any value type} -> text -> decimal` the `type: ['text', 'decimal]` and it will generate typecasting SQL `::text::decimal`.
 
 ## Complex column selection and manipulation
 
@@ -427,7 +417,7 @@ export type ParcelQLColumn = Partial<ParcelQLSimpleColumnWithCase> & {
 
 ### 1. Aliasing the column
 
-Taking the above [example](http://localhost:3000/docs/parcelQL/col-distinct-filter#4-json-data-type-selection). The previous example returned `?column?` due un-determinable column name, Let's have a look how we can alias any column.
+Taking the above [example](/docs/parcelQL/col-distinct-filter#4-json-data-type-selection). The previous example returned `?column?` due un-determinable column name, Let's have a look how we can alias any column.
 
 For aliasing `ParcelQLColumn` has `alias` property. It generates an `as` SQL statement.
 
@@ -450,10 +440,8 @@ For aliasing `ParcelQLColumn` has `alias` property. It generates an `as` SQL sta
 ```
 
 **Generated SQL**
-```json
-{
-  "data": "select (`payload`->'nftType'->>'typeID') as `nftTypeID` from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted')"
-}
+```sql
+select (`payload`->'nftType'->>'typeID') as `nftTypeID` from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted');
 ```
 
 **Response**
@@ -581,10 +569,8 @@ This way, the query will effectively group the salePrice values into these three
 ```
 
 **Generated SQL**
-```json
-{
-  "data": "select (`payload`->>'listingResourceID') as `listingResourceID`, (`payload`->>'salePrice') as `salePrice`, CASE WHEN (`payload`->>'salePrice')::decimal >= 8 THEN 'high' WHEN (`payload`->>'salePrice')::decimal < 8 AND (`payload`->>'salePrice')::decimal >= 4 THEN 'medium' ELSE 'low' END as `sentiment` from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted')"
-}
+```sql
+select (`payload`->>'listingResourceID') as `listingResourceID`, (`payload`->>'salePrice') as `salePrice`, CASE WHEN (`payload`->>'salePrice')::decimal >= 8 THEN 'high' WHEN (`payload`->>'salePrice')::decimal < 8 AND (`payload`->>'salePrice')::decimal >= 4 THEN 'medium' ELSE 'low' END as `sentiment` from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted');
 ```
 
 **Response**
@@ -616,7 +602,7 @@ This way, the query will effectively group the salePrice values into these three
 }
 ```
 
-In the upcoming Filter tutorial, we will delve into a comprehensive understanding of [CompFilter](http://localhost:3000/docs/parcelQL/filter#1-simple-comparison-filter).
+In the upcoming Filter tutorial, we will delve into a comprehensive understanding of [CompFilter](/docs/parcelQL/filter#1-simple-comparison-filter).
 
 ## Distinct
 
@@ -634,7 +620,7 @@ export interface ParcelQLDistinct {
 }
 ```
 
-Let's use the above [example](http://localhost:3000/docs/parcelQL/col-distinct-filter#4-json-data-type-selection) to understand how we can use `distinct` clause to fetch unique `nftType`, eliminating any duplicate entries. 
+Let's use the above [example](/docs/parcelQL/col-distinct-filter#4-json-data-type-selection) to understand how we can use `distinct` clause to fetch unique `nftType`, eliminating any duplicate entries. 
 
 **Request Query**
 ```json
@@ -658,10 +644,8 @@ Let's use the above [example](http://localhost:3000/docs/parcelQL/col-distinct-f
 ```
 
 **Generate SQL**
-```json
-{
-  "data": "select DISTINCT (`payload`->'nftType'->>'typeID') from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted')"
-}
+```sql
+select DISTINCT (`payload`->'nftType'->>'typeID') from `flow_events` where (`event` = 'A.4eb8a10cb9f87357.NFTStorefrontV2.ListingCompleted');
 ```
 
 **Response**
